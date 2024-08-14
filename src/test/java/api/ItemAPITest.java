@@ -1,38 +1,46 @@
 package api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+
+import java.time.LocalDateTime;
+
 import static utils.Config.*;
 
 public class ItemAPITest {
+
+    private static Response loginResponse;
+    private static String token;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    @BeforeAll
+    public static void login(){
+        LoginAPI loginAPI = new LoginAPI();
+        loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
+        Assertions.assertEquals(200, loginResponse.statusCode());
+        token = loginResponse.jsonPath().getString("token");
+    }
 
     @Test
     @Tag("api")
     @DisplayName("Can get all items")
     public void canGetAllItems() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
-        Response response = itemAPI.getAll();
-        Assertions.assertEquals(200, response.statusCode());
+        Response getAllResponse = itemAPI.getAll();
+        Assertions.assertEquals(200, getAllResponse.statusCode());
     }
 
     @Test
     @Tag("api")
     @DisplayName("Can get an item with id")
     public void canGetAnItemWithID() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
         Item item = Item.builder()
-                .name("coffee")
+                .name("coffee" + LocalDateTime.now())
                 .price(34.90F)
                 .price_for_quantity(1)
                 .quantity_unit("kg")
@@ -51,10 +59,7 @@ public class ItemAPITest {
     @Tag("api")
     @DisplayName("Can't get an item with invalid id")
     public void cantGetAnItemWithInvalidID() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
         Response response = itemAPI.get(123456789);
         String errorMessage = response.jsonPath().getString("error");
@@ -65,46 +70,48 @@ public class ItemAPITest {
     @Tag("api")
     @DisplayName("Can create an item")
     public void canCreateAnItem() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
         Item item = Item.builder()
-                .name("coffee")
+                .name("coffee" + LocalDateTime.now())
                 .price(34.90F)
                 .price_for_quantity(1)
                 .quantity_unit("kg")
                 .currency("BGN")
                 .build();
         Response createResponse = itemAPI.create(item);
-        String itemID = createResponse.jsonPath().getString("id");
+        int itemID = createResponse.jsonPath().get("id");
         Assertions.assertEquals(201, createResponse.statusCode());
-        Response deleteResponse = itemAPI.delete(Integer.parseInt(itemID));
-        Assertions.assertEquals(204, deleteResponse.statusCode());
+        /*String responseBody = createResponse.asString();
+        Item newItem = GSON.fromJson(responseBody, Item.class);
+        Assertions.assertEquals(item.getName(), newItem.getName());
+        Assertions.assertEquals(item.getCurrency(), newItem.getCurrency());
+        Assertions.assertEquals(item.getPrice(), newItem.getPrice());
+        Assertions.assertEquals(item.getQuantity_unit(), newItem.getQuantity_unit());
+        Assertions.assertEquals(item.getPrice_for_quantity(), newItem.getPrice_for_quantity());
 
+         */
+        Response deleteResponse = itemAPI.delete(itemID);
+        Assertions.assertEquals(204, deleteResponse.statusCode());
     }
 
     @Test
     @Tag("api")
     @DisplayName("Can delete an item with id")
     public void canDeleteAnItemWIthID() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
         Item item = Item.builder()
-                .name("coffee")
+                .name("coffee" + LocalDateTime.now())
                 .price(34.90F)
                 .price_for_quantity(1)
                 .quantity_unit("kg")
                 .currency("BGN")
                 .build();
         Response createResponse = itemAPI.create(item);
-        String itemID = createResponse.jsonPath().getString("id");
+        int itemID = createResponse.jsonPath().get("id");
         Assertions.assertEquals(201, createResponse.statusCode());
-        Response deleteResponse = itemAPI.delete(Integer.parseInt(itemID));
+        Response deleteResponse = itemAPI.delete(itemID);
         Assertions.assertEquals(204, deleteResponse.statusCode());
     }
 /* PATCH not implemented yet :D
@@ -112,13 +119,10 @@ public class ItemAPITest {
     @Tag("api")
     @DisplayName("Can update an item")
     public void canUpdateAnItem() {
-        LoginAPI loginAPI = new LoginAPI();
-        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
-        Assertions.assertEquals(200, loginResponse.statusCode());
-        String token = loginResponse.jsonPath().getString("token");
+
         ItemAPI itemAPI = new ItemAPI(token);
         Item item = Item.builder()
-                .name("coffee")
+                .name("coffee" + LocalDateTime.now())
                 .price(34.90F)
                 .price_for_quantity(1)
                 .quantity_unit("kg")

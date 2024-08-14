@@ -43,6 +43,7 @@ public class ItemAPI {
                 .basePath(BASE_PATH)
                 .header("Content-Type", "application-json")
                 .header("User-Agent", "Chrome")
+                .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .get(ENDPOINT + "/" + id)
                 .prettyPeek();
