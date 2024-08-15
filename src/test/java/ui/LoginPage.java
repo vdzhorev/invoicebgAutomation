@@ -19,8 +19,7 @@ public class LoginPage {
     private static final By LOGIN_BUTTON = By.id("loginsubmit");
 
     public static void setup() {
-        Browser.open();
-        Browser.driver.get(LOGIN_PAGE);
+        Browser.open(LOGIN_PAGE);
     }
 
     public static void tearDown() {
@@ -28,7 +27,7 @@ public class LoginPage {
     }
 
     public static String getHeadingText() {
-        WebElement heading = Browser.driver.findElement(By.id("wellcome"));
+        WebElement heading = Browser.driver.findElement(HEADING);
         String headingText = heading.getText();
         return headingText;
     }

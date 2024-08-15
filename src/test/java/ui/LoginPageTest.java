@@ -1,6 +1,7 @@
 package ui;
 
 import org.junit.jupiter.api.*;
+import utils.Browser;
 import static utils.Config.*;
 
 
@@ -15,7 +16,7 @@ public class LoginPageTest {
 
     @AfterEach
     public void tearDown() {
-        LoginPage.tearDown();
+        Browser.tearDown();
     }
 
     @Test

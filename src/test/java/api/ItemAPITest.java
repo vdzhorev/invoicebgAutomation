@@ -11,14 +11,13 @@ import static utils.Config.*;
 
 public class ItemAPITest {
 
-    private static Response loginResponse;
     private static String token;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @BeforeAll
-    public static void login(){
+    public static void login() {
         LoginAPI loginAPI = new LoginAPI();
-        loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
+        Response loginResponse = loginAPI.obtainToken(EMAIL, PASSWORD, DOMAIN);
         Assertions.assertEquals(200, loginResponse.statusCode());
         token = loginResponse.jsonPath().getString("token");
     }
@@ -82,15 +81,14 @@ public class ItemAPITest {
         Response createResponse = itemAPI.create(item);
         int itemID = createResponse.jsonPath().get("id");
         Assertions.assertEquals(201, createResponse.statusCode());
-        /*String responseBody = createResponse.asString();
+        Response getResponse = itemAPI.get(itemID);
+        String responseBody = getResponse.asString();
         Item newItem = GSON.fromJson(responseBody, Item.class);
         Assertions.assertEquals(item.getName(), newItem.getName());
         Assertions.assertEquals(item.getCurrency(), newItem.getCurrency());
         Assertions.assertEquals(item.getPrice(), newItem.getPrice());
         Assertions.assertEquals(item.getQuantity_unit(), newItem.getQuantity_unit());
         Assertions.assertEquals(item.getPrice_for_quantity(), newItem.getPrice_for_quantity());
-
-         */
         Response deleteResponse = itemAPI.delete(itemID);
         Assertions.assertEquals(204, deleteResponse.statusCode());
     }
@@ -114,10 +112,11 @@ public class ItemAPITest {
         Response deleteResponse = itemAPI.delete(itemID);
         Assertions.assertEquals(204, deleteResponse.statusCode());
     }
-/* PATCH not implemented yet :D
+
     @Test
     @Tag("api")
     @DisplayName("Can update an item")
+    @Disabled("This test is disabled, because PATCH is not implemented yet.")
     public void canUpdateAnItem() {
 
         ItemAPI itemAPI = new ItemAPI(token);
@@ -147,9 +146,5 @@ public class ItemAPITest {
         Response deleteResponse = itemAPI.delete(Integer.parseInt(itemID));
         Assertions.assertEquals(204, deleteResponse.statusCode());
     }
-    */
-
-
-
 
 }

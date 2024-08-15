@@ -1,9 +1,12 @@
 package api;
 
 import com.google.gson.Gson;
+import com.jayway.jsonpath.JsonPath;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+
+import java.util.List;
 
 import static utils.Config.*;
 
@@ -98,6 +101,12 @@ public class ItemAPI {
                 .accept(ContentType.JSON)
                 .body(item)
                 .patch(ENDPOINT + "/" + id);
+    }
+
+    public void deleteALL() {
+        Response response = getAll();
+        List<Integer> ids = JsonPath.read(response.asString(), "$..id");
+        ids.forEach(this::delete);
     }
 
 }
